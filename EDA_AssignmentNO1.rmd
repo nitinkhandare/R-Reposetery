@@ -1,0 +1,133 @@
+---
+title: "EDA Assignment No 1"
+author: "Nitin Arun Khandare"
+date: "4 March 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+parliament <- read.csv("E:/EDA/works/DataSet/parliament.csv")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1.	Create a function which will take a data frame as input and returns two vector as output. The first vector should have names of those columns which are of type numeric. And the second vector should have names of those columns which are of type factor. Remember that the types float and integer should be consider as numeric
+```{r}
+
+DataColNames <- function(df)
+  {
+  n1=sapply(df, is.numeric)
+  n2=sapply(df, is.factor)
+  n_names1 = names(df)[n1]
+  n_names2 = names(df)[n2]
+  data=list(n_names1,n_names2)
+  names(data)=c("Numeric","Factor")
+  return(data)
+  
+  }
+
+DataColNames(parliament)
+```
+
+
+### 2.	Create a function which will take a data frame as input and returns the following data frame. The function should automatically filter the numerical columns. The number of columns in the output data frame should be equal to number of numerical columns
+
+```{r}
+ summary_Stat= function(df){
+   n1 = sapply(df, is.numeric)
+    summ_vec_fun = function(x){
+   
+    summCol = summary(na.omit(x))
+    summVec = as.vector(summCol)
+    Variance = var(x,na.rm = T)
+    Standard_Deviation = sd(x,na.rm = T)
+    Per_NA_value= sum(is.na(x))*100/length(x)
+    
+    Outliers_per = length(boxplot.stats(x)$out)/length(x)*100
+    
+    alld=c(summVec,Variance,Standard_Deviation,Per_NA_value, Outliers_per)
+    
+  names(alld)<-c("Min Value","25th percentile","50th percentile","Mean","75th    percentile","Max Value","Variance","Standard Deviation","% of missing values","% of outliers")
+  
+   return(alld)
+ }
+  df_Summary = sapply(df[,n1],summ_vec_fun)
+  dfs=round(as.data.frame(df_Summary),2)
+  return(head(dfs,10))
+  
+ }
+
+kable(summary_Stat(parliament))
+```
+
+### 3.	Create a function which will take a data frame as input and returns the following data frame. The function should automatically filter the categorical columns. The number of columns in the output data frame should be equal to number of categorical columns
+```{r}
+
+
+CharSummary=function(df){
+  n2=sapply(df,is.factor)
+  
+  CharVecOp = function(x){
+    Nlevels = nlevels(x)
+    Mode = names(sort(table(x),decreasing = T))[1]
+    Mode_Frequency = sum(x==Mode)
+    
+    table = table(x)
+    Vec= as.vector(table)
+    names(Vec) = names(table)
+    
+    cumsum = cumsum(sort(Vec,decreasing = T))*100/sum(Vec)
+    per_of_levels = round(length(cumsum[cumsum<=80])/length(Vec)*100,4)
+    
+  vec1=c(Nlevels,Mode,Mode_Frequency,per_of_levels)
+ names(vec1)<-c("Unique No.of levels","Most Rep level (Mode)","Freq Of Repeating level","Per_of_levels")
+    
+ return(vec1)
+  }
+  dfchar_Summary=sapply(df[,n2], CharVecOp)
+  
+  return(as.data.frame(dfchar_Summary))
+}
+
+kable(CharSummary(parliament))
+
+
+
+```
+
+### 4.	Using parliament data, identify year wise percentage of male and female candidates?
+```{r}
+
+
+percentageMale=parliament %>% 
+  filter(SEX =="M")%>%
+  group_by(YEAR) %>% 
+  summarise(PercentageMale=n()/nrow(parliament)*100)
+
+percentageFemale=parliament %>%
+  filter(SEX=="F")%>%
+  group_by(YEAR)%>%
+  summarise(PercentageFemale=n()/nrow(parliament)*100)
+
+kable(round(merge(percentageMale,percentageFemale),4))
+  
+
+
+```
+
+###5.	Using parliament data, Compute party wise total number of candidates won so far? Display top ten parties alone
+```{r}
+ 
+totalCandi =parliament %>%
+  filter(Position==1)%>%
+  group_by(PARTY)%>%
+  summarise(Total_Candi_Won=n()) %>%
+  arrange(-Total_Candi_Won)%>%
+  head(10)
+
+kable(totalCandi)
+```

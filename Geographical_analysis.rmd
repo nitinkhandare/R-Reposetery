@@ -1,0 +1,46 @@
+---
+title: "Geographical_Analysis"
+author: "Nitin Arun Khandare"
+date: "16 March 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### geographical analysis
+```{r}
+##install.packages('ggmap')
+library(ggmap)
+odi = read.csv("E:/EDA/works/DataSet/odi-batting.csv")
+
+geocode('india')
+
+countries = unique(as.character(odi$Country))
+
+countries
+
+## rest API is use to access the json file 
+countries_geo = geocode(countries)
+
+
+countries_geo$country = countries
+
+countries_geo
+
+countries_geo$lat_long = paste0(countries_geo$lat, ',' , countries_geo$lon)
+View(countries_geo)
+
+
+View(na.omit(countries_geo)$lat_long)
+
+```
+
+```{r}
+write.csv(countries_geo, 'locations.csv')
+
+
+
+```

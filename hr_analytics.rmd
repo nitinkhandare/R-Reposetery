@@ -1,0 +1,185 @@
+---
+title: "HR_Analytics"
+author: "Nitin Arun Khandare"
+date: "5 March 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+hr = read.csv("E:/EDA/works/DataSet/HR Analytics.csv")
+knitr::opts_chunk$set(echo = TRUE)
+source("C:/Users/Administrator/Documents/eda.R")
+stock = read.csv('E:/EDA/works/DataSet/Stock.csv')
+getwd()
+```
+
+```{r}
+names(hr)
+
+ggplot(hr,aes(x=Gender,y=MonthlyIncome)) + geom_boxplot() + geom_smooth()
+
+ggplot(hr,aes(x=Education,y=MonthlyIncome)) + geom_boxplot() + geom_smooth()
+
+ggplot(hr,aes(x=Department,y=MonthlyIncome)) + geom_boxplot() + geom_smooth()
+
+ggplot(hr,aes(x=JobRole,y=MonthlyIncome)) + geom_boxplot() +
+theme(axis.text.x = element_text(angle = 45))
+
+ggplot(hr,aes(x=MaritalStatus,y=MonthlyIncome)) + geom_boxplot() +
+theme(axis.text.x = element_text(angle = 45))
+
+
+
+
+
+
+```
+
+```{r}
+
+
+
+
+eda = function(df){
+  summary = list()
+  summary$numeric = get_numeric(df)
+  summary$category_freq = categorical_frequency(df)
+  summary$correlation = correlation_analysis(df)
+  summary$crossab = crosstab_analysis(df)
+  summary$segmented = segmented_analysis(df)
+}
+
+```
+
+```{r}
+
+
+num_cols = get_numeric(hr)
+corrplot(cor(hr[,num_cols]),type="upper")
+
+correlation_analysis(na.omit)
+
+```
+
+```{r}
+ggplot(hr,aes(x=Gender,y=MonthlyIncome))+ geom_boxplot()
+
+
+
+hist(hr$MonthlyIncome)
+plot(density(hr$MonthlyIncome))
+ggplot(hr, aes(hr$MonthlyIncome,color=Gender))+geom_density()
+ggplot(hr, aes(hr$MonthlyIncome,color=JobRole))+geom_density()
+
+  
+
+```
+
+
+```{r}
+t_test=t.test(MonthlyIncome~Gender,data=hr)
+
+t_test1=t.test(MonthlyIncome~OverTime,data=hr)
+t_test$p.value
+t_test1$p.value
+```
+
+
+
+```{r}
+num_cols = get_numeric(hr%>% select(-EmployeeCount))
+
+a <- sample(x = c(19,   71,   98,  139,  146,  185,  191), size = 1000, replace = TRUE)
+tt <- table(a)
+names(tt[which.max(tt)])
+
+
+sapply(hr[,sapply(hr, is.factor)], nlevels)
+
+```
+
+```{r}
+
+aov_summary = aov(MonthlyIncome~JobRole,data=hr)
+aov_summary = aov(MonthlyIncome~Department,data=hr)
+summary(aov_summary)
+
+ggplot(hr,aes(color=JobRole,MonthlyIncome))+geom_density()
+
+
+summary(aov_summary)[[1]][1, 'Pr(>F)']
+```
+
+```{r}
+
+
+
+anova = function(x,a){
+  m=sapply(x, is.factor)
+  
+  n_names = names(x)[n]
+  m_names = names(x)[m]
+  for (i in n_names) {
+    for(i in m_names){
+      aov_summary = aov(datast[,col]~dataSet[,factor],data=x)
+      ass <- summary(aov_summary)
+    if(i>0.05){
+     print(ass)
+   } else{
+     print(NA)
+   }
+ }
+  return(ass)
+  }
+}
+
+anova(hr,age)
+
+
+
+```
+
+```{r} 
+
+get_categories = function(df){
+  return(names(which(sapply(df,is.factor))))
+}
+
+annova_analysis = function(df,kpi_col){
+  cat_cols = get_categories(df)
+influencers = c()
+ for (col in cat_cols) {
+  
+   ncats = nlevels(df[,col])
+   if(ncats > 1){
+    aov_summary = summary(aov(df[,kpi_col] ~ df[,col]))
+    p_aov = aov_summary[[1]][1, 'Pr(>F)']
+    if(p_aov < 0.05) influencers = c(influencers,col)
+      
+   }
+   
+ }
+   return(influencers)
+}
+  
+annova_analysis(hr,'MonthlyIncome')
+  
+  
+```
+create a fun 
+```{r}
+ get_numeric = function()
+
+```
+
+
+
+
+
+```{r}
+
+
+```
