@@ -1,6 +1,6 @@
 ---
 title: "Geographical_Analysis"
-author: "Nitin Arun Khandare"
+author: "Nitin Arunram k"
 date: "16 March 2018"
 output: html_document
 ---
